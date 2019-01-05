@@ -679,9 +679,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
       if log_every_n_iter is not None:
         tensors_to_log = {
           'total_loss': total_loss,
-          'probabilities':probabilities
+          'global_step':tf.train.get_global_step()
         }
-        # 10 stepごとにprobabilitiesをlog出力
         logging_hook = tf.train.LoggingTensorHook(
           tensors=tensors_to_log, every_n_iter=log_every_n_iter)
         training_hooks=[logging_hook]
