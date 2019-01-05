@@ -684,7 +684,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         # 10 stepごとにprobabilitiesをlog出力
         logging_hook = tf.train.LoggingTensorHook(
           tensors=tensors_to_log, every_n_iter=log_every_n_iter)
-        training_hooks=(logging_hook)
+        training_hooks=[logging_hook]
 
       output_spec = tf.contrib.tpu.TPUEstimatorSpec(
           mode=mode,
