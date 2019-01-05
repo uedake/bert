@@ -618,7 +618,8 @@ def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
 
 def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
                      num_train_steps, num_warmup_steps, use_tpu,
-                     use_one_hot_embeddings):
+                     use_one_hot_embeddings,
+                     *,log_every_n_iter=None):
   """Returns `model_fn` closure for TPUEstimator."""
 
   def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
@@ -674,11 +675,24 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
       train_op = optimization.create_optimizer(
           total_loss, learning_rate, num_train_steps, num_warmup_steps, use_tpu)
 
+      training_hooks=None
+      if log_every_n_iter is not None:
+        tensors_to_log = {
+          'total_loss': total_loss,
+          'probabilities':probabilities
+        }
+        # 10 stepごとにprobabilitiesをlog出力
+        logging_hook = tf.train.LoggingTensorHook(
+          tensors=tensors_to_log, every_n_iter=log_every_n_iter)
+        training_hooks=(logging_hook)
+
       output_spec = tf.contrib.tpu.TPUEstimatorSpec(
           mode=mode,
           loss=total_loss,
           train_op=train_op,
-          scaffold_fn=scaffold_fn)
+          scaffold_fn=scaffold_fn,
+          training_hooks=training_hooks
+          )
     elif mode == tf.estimator.ModeKeys.EVAL:
 
       def metric_fn(per_example_loss, label_ids, logits, is_real_example):
