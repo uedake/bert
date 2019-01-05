@@ -668,6 +668,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
         init_string = ", *INIT_FROM_CKPT*"
       tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
                       init_string)
+
+    tf.summary.scalar('loss', total_loss)
     
     output_spec = None
     if mode == tf.estimator.ModeKeys.TRAIN:
@@ -700,8 +702,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             labels=label_ids, predictions=predictions, weights=is_real_example)
         loss = tf.metrics.mean(values=per_example_loss, weights=is_real_example)
         return {
-            "accuracy": accuracy,
-            "loss": loss,
+            "eval_accuracy": accuracy,
+            "eval_loss": loss,
         }
 
       eval_metrics = (metric_fn,
