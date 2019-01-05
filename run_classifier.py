@@ -700,8 +700,8 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
             labels=label_ids, predictions=predictions, weights=is_real_example)
         loss = tf.metrics.mean(values=per_example_loss, weights=is_real_example)
         return {
-            "eval_accuracy": accuracy,
-            "eval_loss": loss,
+            "accuracy": accuracy,
+            "loss": loss,
         }
 
       eval_metrics = (metric_fn,
