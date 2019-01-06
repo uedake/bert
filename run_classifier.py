@@ -362,14 +362,14 @@ class PetfinderProcessor(DataProcessor):
             InputExample(
               guid="%s-%s" % (set_type, i),
               text_a=tokenization.convert_to_unicode(desc),
-              label=0))
+              label="0"))
     else:
       for i, (desc,speed) in enumerate(zip(df["Description"],df["AdoptionSpeed"])):
         examples.append(
             InputExample(
               guid="%s-%s" % (set_type, i),
               text_a=tokenization.convert_to_unicode(desc),
-              label=speed))
+              label=str(speed)))
     return examples
 
 class ColaProcessor(DataProcessor):
