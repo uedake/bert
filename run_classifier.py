@@ -363,6 +363,8 @@ class PetfinderProcessor(DataProcessor):
               label=0))
     else:
       for i, (desc,speed) in enumerate(zip(df["Description"],df["AdoptionSpeed"])):
+        print(type(desc))
+        print(desc)
         examples.append(
             InputExample(
               guid="%s-%s" % (set_type, i),
