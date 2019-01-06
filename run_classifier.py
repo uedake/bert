@@ -26,6 +26,8 @@ import optimization
 import tokenization
 import tensorflow as tf
 
+import pandas as pd
+
 flags = tf.flags
 
 FLAGS = flags.FLAGS
@@ -332,6 +334,41 @@ class MrpcProcessor(DataProcessor):
           InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
     return examples
 
+class PetfinderProcessor(DataProcessor):
+
+  def get_train_examples(self, data_dir,num_eval=800):
+    df=pd.read_csv(os.path.join(data_dir, "train.csv"))[num_eval:]
+    return self._create_examples(df, "train")
+
+  def get_dev_examples(self, data_dir,num_eval=800):
+    df=pd.read_csv(os.path.join(data_dir, "train.csv"))[0:num_eval]
+    return self._create_examples(df, "dev")
+
+  def get_test_examples(self, data_dir):
+    df=pd.read_csv(os.path.join(data_dir, "test.csv"))
+    return self._create_examples(df, "test")
+
+  def get_labels(self):
+    return ["0", "1", "2", "3", "4"]
+
+  def _create_examples(self, df, set_type):
+    """Creates examples for the training and dev sets."""
+    examples = []
+    if set_type == "test":
+      for i, desc in enumerate(df["Description"]):
+        examples.append(
+            InputExample(
+              guid="%s-%s" % (set_type, i),
+              text_a=tokenization.convert_to_unicode(desc),
+              label=0))
+    else:
+      for i, (desc,speed) in enumerate(zip(df["Description"],df["AdoptionSpeed"])):
+        examples.append(
+            InputExample(
+              guid="%s-%s" % (set_type, i),
+              text_a=tokenization.convert_to_unicode(desc),
+              label=speed))
+    return examples
 
 class ColaProcessor(DataProcessor):
   """Processor for the CoLA data set (GLUE version)."""
@@ -801,6 +838,7 @@ def main(_):
       "mnli": MnliProcessor,
       "mrpc": MrpcProcessor,
       "xnli": XnliProcessor,
+      "petfinder": PetfinderProcessor,
   }
 
   tokenization.validate_case_matches_checkpoint(FLAGS.do_lower_case,
