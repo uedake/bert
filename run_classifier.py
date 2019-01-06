@@ -353,6 +353,8 @@ class PetfinderProcessor(DataProcessor):
 
   def _create_examples(self, df, set_type):
     """Creates examples for the training and dev sets."""
+    df["Description"]=df["Description"].fillna("no description")
+
     examples = []
     if set_type == "test":
       for i, desc in enumerate(df["Description"]):
@@ -363,8 +365,6 @@ class PetfinderProcessor(DataProcessor):
               label=0))
     else:
       for i, (desc,speed) in enumerate(zip(df["Description"],df["AdoptionSpeed"])):
-        print(type(desc))
-        print(desc)
         examples.append(
             InputExample(
               guid="%s-%s" % (set_type, i),
